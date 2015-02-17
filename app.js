@@ -7,6 +7,22 @@ var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var mongoose = require('mongoose');
+
+var CommentSchema = new mongoose.Schema({
+  body: String,
+  author: String,
+  upvotes: {type: Number, default: 0},
+  post: { type: mongoose.Schema.Types.ObjectId, ref: 'Post' }
+});
+
+mongoose.model('Comment', CommentSchema);
+
+require('./models/Posts');
+
+mongoose.connect('mongodb://localhost/news');
+
+require('./models/Comments');
 
 var app = express();
 
