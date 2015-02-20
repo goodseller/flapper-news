@@ -13,10 +13,6 @@ router.get('/posts', function(req, res, next) {
   });
 });
 
-//router.get('/posts/:post', function(req, res) {
-//  res.json(req.post);
-//});
-
 router.get('/posts/:post', function(req, res, next) {
   req.post.populate('comments', function(err, post) {
     if (err) { return next(err); }
@@ -24,7 +20,6 @@ router.get('/posts/:post', function(req, res, next) {
     res.json(post);
   });
 });
-
 
 router.post('/posts', function(req, res, next) {
   var post = new Post(req.body);
@@ -45,11 +40,38 @@ router.post('/posts/:post/comments', function(req, res, next) {
 
     req.post.comments.push(comment);
     req.post.save(function(err, post) {
-      if(err){ return next(err); }
+      if(err){ return next(err); };
 
       res.json(comment);
     });
   });
+});
+
+router.delete('/posts/:post', function(req, res, next) {
+	req.post.populate('comments', function(err, post) {
+		if (err) { return next(err); };
+		var comments = post.comments;
+
+		for (var i = comments.length - 1; i >= 0; i--) {
+			console.log('Number of comments: ' + i);
+			comments[i].remove(function (err) {
+				if (err) { return next(err); };
+			});
+		}
+		
+		post.remove(function (err) {
+			if (err) { return next(err); };
+			res.send('');
+		});
+	});
+});
+
+router.delete('/comments/:comment', function(req, res, next) {
+	var comment = req.comment;
+	return comment.remove(function (err) {
+		if (err) { return next(err); };
+		res.send('');
+	});
 });
 
 router.put('/posts/:post/downvote', function(req, res, next) {

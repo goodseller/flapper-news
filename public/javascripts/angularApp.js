@@ -5,16 +5,6 @@ app.config([
 '$urlRouterProvider',
 function($stateProvider, $urlRouterProvider) {
   $stateProvider
-//    .state('home', {
-//      url: '/home',
-//      templateUrl: '/home.html',
-//      controller: 'MainCtrl'
-//    })
-//	.state('posts', {
-//	  url: '/posts/{id}',
-//	  templateUrl: '/posts.html',
-//	  controller: 'PostsCtrl'
-//	});
 	.state('home', {
 	  url: '/home',
 	  templateUrl: '/home.html',
@@ -36,8 +26,6 @@ function($stateProvider, $urlRouterProvider) {
 	  }
 	});
 
-
-
   $urlRouterProvider.otherwise('home');
 }]);
 
@@ -48,32 +36,9 @@ app.factory('post',[function () {
 
 
 app.factory('posts', ['$http', 'post', function($http){
-  var o = {
-/*
-    posts: [
-		{title: 'post 1', upvotes: 1, 
-		comments: [
-			{author: 'Joe', body: 'Cool post!', upvotes: 0},
-		]},
-		{title: 'post 2', upvotes: 2, 
-		comments: [
-			{author: 'Bob', body: 'Great idea but everything is wrong!', upvotes: 0}
-		]},
-		{title: 'post 3', upvotes: 3, 
-		comments: [
-			{author: 'Joe', body: 'Cool post!', upvotes: 0},
-			{author: 'Bob', body: 'Great idea but everything is wrong!', upvotes: 0}
-		]},
-		{title: 'post 4', upvotes: 4, 
-		comments: [
-			{author: 'Joe', body: 'Cool post!', upvotes: 0},
-			{author: 'Bob', body: 'Great idea but everything is wrong!', upvotes: 0}
-		]},
-	]
-*/
-  };
-  
-  o.posts = [];
+	var o = {};
+
+	o.posts = [];
   
 	o.getAll = function() {
 		return $http.get('/posts').success(function(data){
@@ -101,11 +66,17 @@ app.factory('posts', ['$http', 'post', function($http){
 		});
 	};
   
-  
 	o.get = function(id) {
-	  return $http.get('/posts/' + id).then(function(res){
-		return res.data;
-	  });
+		return $http.get('/posts/' + id).then(function(res){
+			return res.data;
+		});
+	};
+	
+	o.delete = function (post) {
+		return $http.delete('/posts/' + post._id).success(function(res){
+			delete(post);
+			return res.data;
+		});
 	};
   
 	o.addComment = function(id, comment) {
@@ -126,17 +97,20 @@ app.factory('posts', ['$http', 'post', function($http){
 		});
 	};
 	
+	o.deleteComment = function (comment) {
+		return $http.delete('/comments/' + comment._id).success(function(res){
+			return res.data;
+		});
+	};
+	
   return o;
 }]);
 
 app.controller('PostsCtrl', [
 '$scope',
-//'$stateParams',
 'posts',
 'post',
 function($scope, posts, post){
-//function($scope, $stateParams, posts, post){
-	//$scope.post = posts.posts[$stateParams.id];
 	$scope.post = post;
 
 	$scope.addComment = function(){
@@ -153,24 +127,17 @@ function($scope, posts, post){
 	$scope.upvotes = function(comment){
 	  posts.upvoteComment(post, comment);
 	};
-	
 	$scope.downvotes = function(comment){
 	  posts.downvoteComment(post, comment);
 	};
-	
-	/*
-	$scope.addComment = function(){
-	  if($scope.body === '') { return; }
-	  $scope.post.comments.push({
-		body: $scope.body,
-		author: 'user',
-		upvotes: 0
-	  });
-	  $scope.body = '';
+	$scope.delete = function (comment) {
+		posts
+			.deleteComment(comment)
+			.success(function(comment) {
+				$scope.post.comments.splice( $scope.post.comments.indexOf(comment), 1 );
+			});
 	};
-	*/
 }]);
-
 
 app.controller('MainCtrl', [
 '$scope',
@@ -184,28 +151,11 @@ function($scope, posts){
 	$scope.downvotes = function(post) {
 	  posts.downvote(post);
 	};
-
-//$scope.incrementUpvotes = function(post) {
-//  post.upvotes += 1;
-//};
-
-/*
-$scope.addPost = function(){
-  if(!$scope.title || $scope.title === '') { return; }
-	$scope.posts.push({
-	  title: $scope.title,
-	  link: $scope.link,
-	  upvotes: 0,
-	  comments: [
-		{author: 'Joe', body: 'Cool post!', upvotes: 0},
-		{author: 'Bob', body: 'Great idea but everything is wrong!', upvotes: 0}
-	  ]
-	});
-
-  $scope.title = '';
-  $scope.link = '';
-};
-*/
+	$scope.delete = function (post) {
+		posts.delete(post).success(function(post) {
+			$scope.posts.splice( $scope.posts.indexOf(post), 1 );
+		});
+	}
 
 $scope.addPost = function(){
   if(!$scope.title || $scope.title === '') { return; }

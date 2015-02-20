@@ -46,6 +46,9 @@
 		<a href="#/posts/{{post._id}}">Comments</a>
 	  <!--<a href="#/posts/{{$index}}">Comments</a>-->
 	</span>
+	<span>
+		<a href="#" ng-click="delete(post)" class="btn-delete">X</a>
+	</span>
   </div>
 
 	<form ng-submit="addPost()"
@@ -89,6 +92,9 @@
     <span style="font-size:20px; margin-left:10px;">
       {{comment.body}}
     </span>
+	<span>
+		<a href="#" ng-click="delete(comment)" class="btn-delete">X</a>
+	</span>
   </div>
   
   <form ng-submit="addComment()"
