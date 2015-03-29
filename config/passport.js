@@ -91,13 +91,20 @@ module.exports = function(passport) {
                     if (user) {
                         return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
                     } else {
-
                         // create the user
                         var newUser            = new User();
 
                         newUser.local.email    = email;
                         newUser.local.password = newUser.generateHash(password);
-
+						
+						if(req.body.nick_name)
+							newUser.info.nick_name = req.body.nick_name;
+						if(req.body.first_name)
+							newUser.info.nick_name = req.body.first_name;
+						if(req.body.last_name)
+							newUser.info.nick_name = req.body.last_name;
+							
+							
                         newUser.save(function(err) {
                             if (err)
                                 return done(err);
@@ -122,6 +129,7 @@ module.exports = function(passport) {
                         var user = req.user;
                         user.local.email = email;
                         user.local.password = user.generateHash(password);
+						user.info.nick_name = nick_name;
                         user.save(function (err) {
                             if (err)
                                 return done(err);

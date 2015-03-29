@@ -1,132 +1,68 @@
 <html>
 <head>
-  <title>Task Tracker</title>
+  <title>Authentication</title>
   <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
   <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.12/angular.min.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
-  <script src="/javascripts/angularApp.js"></script>
+  
   <style>
-  .glyphicon-thumbs-up, .glyphicon-thumbs-down { cursor:pointer }
-  .btn-right {
-	float: right;
+  .fb-like {
+	padding: 10px;
   }
   </style>
 </head>
 
-<body ng-app="flapperNews">
+<body>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '617843004984076',
+      xfbml      : true,
+      version    : 'v2.2'
+    });
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "//connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+   
+   function fb_login() {
+   setTimeout(function(){
+		FB.getLoginStatus(function(response) {
+		  if (response.status === 'connected') {
+			console.log('Logged in.');
+		  }
+		  else {
+			FB.login();
+		  }
+		});
+   }, 300);
+   }
+</script>
 	<div class="jumbotron text-center">
-		<h1><span class="fa fa-lock"></span> Node Authentication</h1>
+		<h1><span class="fa fa-lock"></span> Authentication</h1>
 
 		<p>Login or Register with:</p>
-
-		<a href="/login" class="btn btn-default"><span class="fa fa-user"></span> Local Login</a>
-		<a href="/signup" class="btn btn-default"><span class="fa fa-user"></span> Local Signup</a>
-		<a href="/auth/facebook" class="btn btn-primary"><span class="fa fa-facebook"></span> Facebook</a>
-		<a href="/auth/twitter" class="btn btn-info"><span class="fa fa-twitter"></span> Twitter</a>
-		<a href="/auth/google" class="btn btn-danger"><span class="fa fa-google-plus"></span> Google+</a>
+		<div class="row">
+			<a href="/login" class="btn btn-default"><span class="fa fa-key"></span> Login</a>
+			<a href="/signup" class="btn btn-default"><span class="fa fa-user"></span> Register</a>
+			<a href="/auth/facebook" class="btn btn-primary"><span class="fa fa-facebook"></span> Facebook</a>
+			<a href="/auth/twitter" class="btn btn-info"><span class="fa fa-twitter"></span> Twitter</a>
+			<a href="/auth/google" class="btn btn-danger"><span class="fa fa-google-plus"></span> Google+</a>
+		</div>
+		
+		<div id="fb-root"></div>
+		<div
+		  class="row fb-like"
+		  data-share="true"
+		  data-width="450"
+		  data-show-faces="true">
+		  </div>
 	</div>
-
-
-  <div class="row">
-    <div class="col-md-6 col-md-offset-3">
-		<ui-view></ui-view>
-    </div>
-  </div>
-  
-  
-<script type="text/ng-template" id="/home.html">
-<div ng-controller="MainCtrl">
-  <div class="page-header">
-    <h1>Flapper News</h1>
-  </div>
-  
-  <div ng-repeat="post in posts | orderBy:'-upvotes'">
-	<span class="glyphicon glyphicon-thumbs-up"
-	  ng-click="upvotes(post)"></span>
-	<span class="glyphicon glyphicon-thumbs-down"
-      ng-click="downvotes(post)"></span>
-	{{post.upvotes}}
-	<span style="font-size:20px; margin-left:10px;">
-	  <a ng-show="post.link" href="{{post.link}}">
-		{{post.title}}
-	  </a>
-	  <span ng-hide="post.link">
-		{{post.title}}
-	  </span>
-	</span>
-	<span>
-		<a href="#/posts/{{post._id}}">Comments</a>
-	  <!--<a href="#/posts/{{$index}}">Comments</a>-->
-	</span>
-	<span>
-		<a href="#" ng-click="delete(post)" class="btn-delete">X</a>
-	</span>
-  </div>
-
-	<form ng-submit="addPost()"
-	style="margin-top:30px;">
-	<h3>Add a new post</h3>
-
-	<div class="form-group">
-	  <input type="text"
-		class="form-control"
-		placeholder="Title"
-		ng-model="title"></input>
-	</div>
-	<div class="form-group">
-	  <input type="text"
-	  class="form-control"
-	  placeholder="Link"
-	  ng-model="link"></input>
-	</div>
-	<button type="submit" class="btn btn-primary btn-right">Post</button>
-  </form>
-</script>
-
-<script type="text/ng-template" id="/posts.html">
-  <div class="page-header">
-    <h3>
-      <a ng-show="post.link" href="{{post.link}}">
-        {{post.title}}
-      </a>
-      <span ng-hide="post.link">
-        {{post.title}}
-      </span>
-    </h3>
-  </div>
-
-  <div ng-repeat="comment in post.comments | orderBy:'-upvotes'">
-    <span class="glyphicon glyphicon-thumbs-up"
-      ng-click="upvotes(comment)"></span>
-    <span class="glyphicon glyphicon-thumbs-down"
-      ng-click="downvotes(comment)"></span>
-    {{comment.upvotes}} - by {{comment.author}}
-    <span style="font-size:20px; margin-left:10px;">
-      {{comment.body}}
-    </span>
-	<span>
-		<a href="#" ng-click="delete(comment)" class="btn-delete">X</a>
-	</span>
-  </div>
-  
-  <form ng-submit="addComment()"
-    style="margin-top:30px;">
-    <h3>Add a new comment</h3>
-
-    <div class="form-group">
-      <input type="text"
-      class="form-control"
-      placeholder="Comment"
-      ng-model="body"></input>
-    </div>
-    <button type="submit" class="btn btn-primary btn-right">Post</button>
-  </form>
-  <div>
-	<a href="#/home"><button type="submit" class="btn btn-primary">< Back</button></a>
-  </div>
-</script>
-
-
 </body>
 </html>

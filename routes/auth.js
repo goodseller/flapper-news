@@ -1,3 +1,8 @@
+var path = require('path');
+var isLoggedIn = require(path.join('..', 'modules', 'auth', 'authed'));
+var routeConfig = 
+
+// route middleware to ensure user is logged in
 module.exports = function route (app, passport) {
 
 // normal routes ===============================================================
@@ -33,7 +38,7 @@ module.exports = function route (app, passport) {
 
 		// process the login form
 		app.post('/login', passport.authenticate('local-login', {
-			successRedirect : '/profile', // redirect to the secure profile section
+			successRedirect : '/dashboard', // redirect to the secure profile section
 			failureRedirect : '/login', // redirect back to the signup page if there is an error
 			failureFlash : true // allow flash messages
 		}));
@@ -46,7 +51,7 @@ module.exports = function route (app, passport) {
 
 		// process the signup form
 		app.post('/signup', passport.authenticate('local-signup', {
-			successRedirect : '/profile', // redirect to the secure profile section
+			successRedirect : '/dashboard', // redirect to the secure profile section
 			failureRedirect : '/signup', // redirect back to the signup page if there is an error
 			failureFlash : true // allow flash messages
 		}));
@@ -59,7 +64,7 @@ module.exports = function route (app, passport) {
 		// handle the callback after facebook has authenticated the user
 		app.get('/auth/facebook/callback',
 			passport.authenticate('facebook', {
-				successRedirect : '/profile',
+				successRedirect : '/dashboard',
 				failureRedirect : '/'
 			}));
 
@@ -71,7 +76,7 @@ module.exports = function route (app, passport) {
 		// handle the callback after twitter has authenticated the user
 		app.get('/auth/twitter/callback',
 			passport.authenticate('twitter', {
-				successRedirect : '/profile',
+				successRedirect : '/dashboard',
 				failureRedirect : '/'
 			}));
 
@@ -84,7 +89,7 @@ module.exports = function route (app, passport) {
 		// the callback after google has authenticated the user
 		app.get('/auth/google/callback',
 			passport.authenticate('google', {
-				successRedirect : '/profile',
+				successRedirect : '/dashboard',
 				failureRedirect : '/'
 			}));
 
@@ -97,7 +102,7 @@ module.exports = function route (app, passport) {
 			res.render('connect-local.ejs', { message: req.flash('loginMessage') });
 		});
 		app.post('/connect/local', passport.authenticate('local-signup', {
-			successRedirect : '/profile', // redirect to the secure profile section
+			successRedirect : '/dashboard', // redirect to the secure profile section
 			failureRedirect : '/connect/local', // redirect back to the signup page if there is an error
 			failureFlash : true // allow flash messages
 		}));
@@ -110,7 +115,7 @@ module.exports = function route (app, passport) {
 		// handle the callback after facebook has authorized the user
 		app.get('/connect/facebook/callback',
 			passport.authorize('facebook', {
-				successRedirect : '/profile',
+				successRedirect : '/dashboard',
 				failureRedirect : '/'
 			}));
 
@@ -122,7 +127,7 @@ module.exports = function route (app, passport) {
 		// handle the callback after twitter has authorized the user
 		app.get('/connect/twitter/callback',
 			passport.authorize('twitter', {
-				successRedirect : '/profile',
+				successRedirect : '/dashboard',
 				failureRedirect : '/'
 			}));
 
@@ -135,7 +140,7 @@ module.exports = function route (app, passport) {
 		// the callback after google has authorized the user
 		app.get('/connect/google/callback',
 			passport.authorize('google', {
-				successRedirect : '/profile',
+				successRedirect : '/dashboard',
 				failureRedirect : '/'
 			}));
 
@@ -152,7 +157,7 @@ module.exports = function route (app, passport) {
 		user.local.email    = undefined;
 		user.local.password = undefined;
 		user.save(function(err) {
-			res.redirect('/profile');
+			res.redirect('/dashboard');
 		});
 	});
 
@@ -161,7 +166,7 @@ module.exports = function route (app, passport) {
 		var user            = req.user;
 		user.facebook.token = undefined;
 		user.save(function(err) {
-			res.redirect('/profile');
+			res.redirect('/dashboard');
 		});
 	});
 
@@ -170,7 +175,7 @@ module.exports = function route (app, passport) {
 		var user           = req.user;
 		user.twitter.token = undefined;
 		user.save(function(err) {
-			res.redirect('/profile');
+			res.redirect('/dashboard');
 		});
 	});
 
@@ -179,17 +184,7 @@ module.exports = function route (app, passport) {
 		var user          = req.user;
 		user.google.token = undefined;
 		user.save(function(err) {
-			res.redirect('/profile');
+			res.redirect('/dashboard');
 		});
 	});
-
-
 };
-
-// route middleware to ensure user is logged in
-function isLoggedIn(req, res, next) {
-	if (req.isAuthenticated())
-		return next();
-
-	res.redirect('/');
-}
